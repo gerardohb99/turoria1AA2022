@@ -265,29 +265,42 @@ class BasicAgentAA(BustersAgent):
 
     def vectorToAction(self, vector, legal, lastAction):
         dx, dy = vector
-        if dy > 0 and Directions.NORTH in legal and Directions.SOUTH is not lastAction: 
-            return Directions.NORTH
-        if dy < 0 and Directions.SOUTH in legal and Directions.NORTH is not lastAction:
-            return Directions.SOUTH
-        if dx < 0 and Directions.WEST in legal and Directions.EAST is not lastAction:
-            return Directions.WEST
-        if dx > 0 and Directions.EAST in legal and Directions.WEST is not lastAction:
-            return Directions.EAST
+        min_d = min(dx,dy)
+
+        # Dar prioridad al diferencial más pequeño
+        if min_d == dy:
+            if dy > 0 and Directions.NORTH in legal and Directions.SOUTH is not lastAction: 
+                return Directions.NORTH
+            if dy < 0 and Directions.SOUTH in legal and Directions.NORTH is not lastAction:
+                return Directions.SOUTH
+            if dx < 0 and Directions.WEST in legal and Directions.EAST is not lastAction:
+                return Directions.WEST
+            if dx > 0 and Directions.EAST in legal and Directions.WEST is not lastAction:
+                return Directions.EAST
+        else:
+            if dx < 0 and Directions.WEST in legal and Directions.EAST is not lastAction:
+                return Directions.WEST
+            if dx > 0 and Directions.EAST in legal and Directions.WEST is not lastAction:
+                return Directions.EAST
+            if dy > 0 and Directions.NORTH in legal and Directions.SOUTH is not lastAction: 
+                return Directions.NORTH
+            if dy < 0 and Directions.SOUTH in legal and Directions.NORTH is not lastAction:
+                return Directions.SOUTH
 
         
         #Cuando se queda sin acciones legales hacemos uso de un random action
         direction = Directions.STOP
+        legal.remove(Directions.STOP)
         while direction is Directions.STOP:
             move_random = random.randint(0, 3)
-            if   ( move_random == 0 ) and Directions.WEST in legal and Directions.EAST: 
+            if   ( move_random == 0 ) and Directions.WEST in legal and (Directions.EAST is not lastAction or len(legal) == 1): 
                 direction =  Directions.WEST
-            elif   ( move_random == 1 ) and Directions.EAST in legal and Directions.WEST: 
+            elif   ( move_random == 1 ) and Directions.EAST in legal and (Directions.WEST is not lastAction or len(legal) == 1): 
                 direction =  Directions.EAST
-            elif   ( move_random == 2 ) and Directions.NORTH in legal and Directions.SOUTH:  
+            elif   ( move_random == 2 ) and Directions.NORTH in legal and (Directions.SOUTH is not lastAction or len(legal) == 1):  
                 direction =  Directions.NORTH
-            elif   ( move_random == 3 ) and Directions.SOUTH in legal and Directions.NORTH: 
+            elif   ( move_random == 3 ) and Directions.SOUTH in legal and (Directions.NORTH is not lastAction or len(legal) == 1): 
                 direction =  Directions.SOUTH
-        
         return direction
 
         
@@ -314,8 +327,7 @@ class BasicAgentAA(BustersAgent):
         move = self.vectorToAction(vec, legal, lastAction)
         return move
 
-    def printLineData(self, gameState):
-           
+    def printLineData(self, gameState):     
         data = ""
         # Pacman position
         data= str(gameState.getPacmanPosition()[0]) +  ", " + str(gameState.getPacmanPosition()[1]) + ", "
