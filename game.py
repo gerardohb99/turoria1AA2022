@@ -696,7 +696,7 @@ class Game(object):
                     return
             else:
                 action = agent.getAction(observation)
-                if(agent ==  self.agents[0]):                    
+                if(agent ==  self.agents[0] and type(agent).__name__) == "BasicAgentAA":                    
                     f.write(agent.printLineData(self.state))
 
             self.unmute()
