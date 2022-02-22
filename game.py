@@ -1,5 +1,6 @@
 from __future__ import print_function
 from __future__ import division
+
 # game.py
 # -------
 # Licensing Information:  You are free to use or extend these projects for
