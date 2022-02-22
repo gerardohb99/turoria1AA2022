@@ -317,7 +317,8 @@ class BasicAgentAA(BustersAgent):
 
         for i in range(1,len(livingGhosts)):
             if livingGhosts[i]:
-                distance = gameState.data.ghostDistances[i-1]
+
+                distance = (gameState.data.ghostDistances[i-1], 10**10)[gameState.data.ghostDistances[i-1] is None]
                 if distance < minDistance:
                     minDistance = distance
                     vecx = gameState.getGhostPositions()[i-1][0] - gameState.getPacmanPosition()[0]
