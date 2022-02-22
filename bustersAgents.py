@@ -262,6 +262,34 @@ class BasicAgentAA(BustersAgent):
         print( gameState.getWalls())
         # Score
         print("Score: ", gameState.getScore())
+
+    def vectorToAction(self, vector, legal, lastAction):
+        dx, dy = vector
+        if dy > 0 and Directions.NORTH in legal and Directions.SOUTH is not lastAction: 
+            return Directions.NORTH
+        if dy < 0 and Directions.SOUTH in legal and Directions.NORTH is not lastAction:
+            return Directions.SOUTH
+        if dx < 0 and Directions.WEST in legal and Directions.EAST is not lastAction:
+            return Directions.WEST
+        if dx > 0 and Directions.EAST in legal and Directions.WEST is not lastAction:
+            return Directions.EAST
+
+        
+        #Cuando se queda sin acciones legales hacemos uso de un random action
+        direction = Directions.STOP
+        while direction is Directions.STOP:
+            move_random = random.randint(0, 3)
+            if   ( move_random == 0 ) and Directions.WEST in legal and Directions.EAST: 
+                direction =  Directions.WEST
+            elif   ( move_random == 1 ) and Directions.EAST in legal and Directions.WEST: 
+                direction =  Directions.EAST
+            elif   ( move_random == 2 ) and Directions.NORTH in legal and Directions.SOUTH:  
+                direction =  Directions.NORTH
+            elif   ( move_random == 3 ) and Directions.SOUTH in legal and Directions.NORTH: 
+                direction =  Directions.SOUTH
+        
+        return direction
+
         
         
     def chooseAction(self, gameState):
@@ -269,11 +297,21 @@ class BasicAgentAA(BustersAgent):
         self.printInfo(gameState)
         move = Directions.STOP
         legal = gameState.getLegalActions(0) ##Legal position from the pacman
-        move_random = random.randint(0, 3)
-        if   ( move_random == 0 ) and Directions.WEST in legal:  move = Directions.WEST
-        if   ( move_random == 1 ) and Directions.EAST in legal: move = Directions.EAST
-        if   ( move_random == 2 ) and Directions.NORTH in legal:   move = Directions.NORTH
-        if   ( move_random == 3 ) and Directions.SOUTH in legal: move = Directions.SOUTH
+        minDistance = 10**10
+        livingGhosts = gameState.getLivingGhosts()
+        lastAction = gameState.data.agentStates[0].getDirection()
+        vec = (1,1)
+
+        for i in range(1,len(livingGhosts)):
+            if livingGhosts[i]:
+                distance = gameState.data.ghostDistances[i-1]
+                if distance < minDistance:
+                    minDistance = distance
+                    vecx = gameState.getGhostPositions()[i-1][0] - gameState.getPacmanPosition()[0]
+                    vecy = gameState.getGhostPositions()[i-1][1] - gameState.getPacmanPosition()[1] 
+                    vec = (vecx,vecy)
+                    
+        move = self.vectorToAction(vec, legal, lastAction)
         return move
 
     def printLineData(self, gameState):
